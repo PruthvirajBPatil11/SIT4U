@@ -13,6 +13,7 @@ export default function Interests() {
   });
 
   const [celebrate, setCelebrate] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const sections = [
     {
@@ -115,11 +116,34 @@ export default function Interests() {
     });
   }
 
-  function finish() {
-    setCelebrate(true);
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 2500);
+  async function finish() {
+    const userId = localStorage.getItem("sit4u_userId");
+
+    if (!userId) {
+      alert("User session not found. Please login again.");
+      window.location.href = "/";
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await fetch(`http://localhost:5000/users/${userId}/interests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selected),
+      });
+      if (!res.ok) throw new Error("Failed to save interests");
+
+      setCelebrate(true);
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 2500);
+    } catch (err) {
+      console.error(err);
+      alert("Could not save interests. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -155,8 +179,8 @@ export default function Interests() {
         </div>
       ))}
 
-      <button className="finish-btn" onClick={finish}>
-        Finish
+      <button className="finish-btn" onClick={finish} disabled={saving}>
+        {saving ? "Saving..." : "Finish"}
       </button>
 
       {celebrate && (

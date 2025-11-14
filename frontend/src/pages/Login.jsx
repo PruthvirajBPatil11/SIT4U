@@ -44,6 +44,12 @@ export default function Login() {
 
       if (!res.ok) throw new Error("Failed");
 
+      const data = await res.json();
+
+      if (data?.user?._id) {
+        localStorage.setItem("sit4u_userId", data.user._id);
+      }
+
       setLoading(false);
       setPopup(true);
 
@@ -51,7 +57,6 @@ export default function Login() {
         setPopup(false);
         navigate("/interests");
       }, 3000); // popup on screen for 3 seconds
-
     } catch {
       setLoading(false);
       alert("Error storing data!");

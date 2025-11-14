@@ -81,6 +81,7 @@ app.post("/register", upload.single("idCard"), async (req, res) => {
     });
 
     await user.save();
+    // return created user so frontend can store _id
     res.status(201).json({ message: "User saved", user });
   } catch (err) {
     console.error("Error in /register:", err);
@@ -111,8 +112,12 @@ app.get("/users/:id", async (req, res) => {
 // Save / update interests for a user
 app.post("/users/:id/interests", async (req, res) => {
   try {
-    const update = { interests: req.body }; // expects the entire interests object
-    const user = await User.findByIdAndUpdate(req.params.id, { $set: { interests: update.interests } }, { new: true });
+    const update = { interests: req.body }; // full interests object
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: { interests: update.interests } },
+      { new: true }
+    );
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "Interests updated", user });
   } catch (err) {
